@@ -241,3 +241,17 @@ export const PATTERNS_BY_CATEGORY = {
   seventh: SEVENTH_PATTERNS,
   modes:   MODES_ONLY,
 } as const  
+
+// Diatonic chord qualities for a major key.
+// Used by useFretboard when triadMode === 'diatonic'.
+export const MAJOR_SCALE_INTERVALS = [0, 2, 4, 5, 7, 9, 11]
+
+export const DIATONIC_QUALITIES = [
+  { degree: 'I',    type: 'maj' as const, intervals: [0, 4, 7] },
+  { degree: 'ii',   type: 'min' as const, intervals: [0, 3, 7] },
+  { degree: 'iii',  type: 'min' as const, intervals: [0, 3, 7] },
+  { degree: 'IV',   type: 'maj' as const, intervals: [0, 4, 7] },
+  { degree: 'V',    type: 'dom' as const, intervals: [0, 4, 7] },
+  { degree: 'vi',   type: 'min' as const, intervals: [0, 3, 7] },
+  { degree: 'vii°', type: 'dim' as const, intervals: [0, 3, 6] },
+]
