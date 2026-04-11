@@ -240,4 +240,4 @@ export const PATTERNS_BY_CATEGORY = {
   triads:  TRIAD_PATTERNS,
   seventh: SEVENTH_PATTERNS,
   modes:   MODES_ONLY,
-} as const
+} as const  
