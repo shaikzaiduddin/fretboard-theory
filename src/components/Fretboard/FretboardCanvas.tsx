@@ -2,11 +2,12 @@ import { useTheoryStore }   from '../../stores/useTheoryStore'
 import { useFretboard }     from '../../hooks/useFretboard'
 import { useFretboardDraw } from './useFretboardDraw'
 import { DOT_RADIUS, MIN_FRETS, MAX_FRETS } from '../../hooks/useFretboard'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export function FretboardCanvas() {
-  const labelMode  = useTheoryStore(s => s.labelMode)
-  const root       = useTheoryStore(s => s.root)
-  const numFrets   = useTheoryStore(s => s.numFrets)
+  const labelMode   = useTheoryStore(s => s.labelMode)
+  const root        = useTheoryStore(s => s.root)
+  const numFrets    = useTheoryStore(s => s.numFrets)
   const setNumFrets = useTheoryStore(s => s.setNumFrets)
 
   const renderData = useFretboard()
@@ -17,7 +18,7 @@ export function FretboardCanvas() {
 
       {/* Fret count slider */}
       <div className="flex items-center gap-3">
-        <span className="font-mono text-xs uppercase tracking-widest text-stone-500 shrink-0">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-stone-400 shrink-0">
           Frets
         </span>
         <input
@@ -56,7 +57,7 @@ export function FretboardCanvas() {
               strokeWidth={1.5}
             />
 
-            {/* Subtle wood grain lines */}
+            {/* Wood grain lines */}
             {Array.from({ length: 6 }, (_, i) => (
               <line
                 key={i}
@@ -133,7 +134,7 @@ export function FretboardCanvas() {
                   opacity={str.dimmed ? 0.1 : 0.55}
                 />
 
-                {/* String name label — sits left of nut, right of open dot area */}
+                {/* String name label */}
                 <text
                   x={draw.labelX}
                   y={str.y + 4}
@@ -146,12 +147,26 @@ export function FretboardCanvas() {
                 </text>
 
                 {/* Open string dot */}
-                {str.openDot && <Dot dot={str.openDot} />}
+                <AnimatePresence mode="wait">
+                  {str.openDot && (
+                    <Dot
+                      key={`open-${str.idx}`}
+                      dot={str.openDot}
+                      delay={str.idx * 0.02}
+                    />
+                  )}
+                </AnimatePresence>
 
                 {/* Fretted dots */}
-                {str.dots.map((dot, i) => (
-                  <Dot key={i} dot={dot} />
-                ))}
+                <AnimatePresence mode="wait">
+                  {str.dots.map((dot, i) => (
+                    <Dot
+                      key={`${str.idx}-${i}-${dot.x}`}
+                      dot={dot}
+                      delay={i * 0.015 + str.idx * 0.02}
+                    />
+                  ))}
+                </AnimatePresence>
 
               </g>
             ))}
@@ -164,16 +179,38 @@ export function FretboardCanvas() {
 }
 
 // ─── DOT ─────────────────────────────────────────────────────────────────────
+// Each dot animates independently.
+// initial: starts invisible and slightly small
+// animate: fades in and scales to full size
+// exit:    fades out quickly when scale changes
+// delay:   staggers the animation so dots appear left-to-right
+//
+// Why use motion.circle for SVG?
+// Framer Motion supports SVG elements natively — motion.circle,
+// motion.rect, motion.path etc. They accept the same animate/initial/exit
+// props as HTML motion elements.
+
 interface DotProps {
-  dot: { x: number; y: number; color: string; isRoot: boolean; label: string }
+  dot:   { x: number; y: number; color: string; isRoot: boolean; label: string }
+  delay: number
 }
 
-function Dot({ dot }: DotProps) {
+function Dot({ dot, delay }: DotProps) {
   const DR = DOT_RADIUS
 
   return (
-    <g>
-      {/* Root note glow ring */}
+    <motion.g
+      initial={{ opacity: 0, scale: 0.4 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.3 }}
+      transition={{
+        duration: 0.2,
+        delay,
+        ease: 'easeOut',
+      }}
+      style={{ transformOrigin: `${dot.x}px ${dot.y}px` }}
+    >
+      {/* Root note glow rings */}
       {dot.isRoot && (
         <>
           <circle
@@ -203,7 +240,7 @@ function Dot({ dot }: DotProps) {
         opacity={dot.isRoot ? 1 : 0.82}
       />
 
-      {/* Inner highlight — gives dot a slight 3D feel */}
+      {/* Inner highlight */}
       <circle
         cx={dot.x - DR * 0.2}
         cy={dot.y - DR * 0.2}
@@ -226,6 +263,6 @@ function Dot({ dot }: DotProps) {
           {dot.label}
         </text>
       )}
-    </g>
+    </motion.g>
   )
 }

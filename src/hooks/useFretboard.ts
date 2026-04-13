@@ -10,7 +10,7 @@ import { DIATONIC_QUALITIES, MAJOR_SCALE_INTERVALS } from '../data/scales'
 export const MAX_FRETS  = 24
 export const MIN_FRETS  = 12
 export const FRET_DOTS  = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24]
-export const DOT_RADIUS = 9
+export const DOT_RADIUS = 8
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 export interface FretboardRenderData {
