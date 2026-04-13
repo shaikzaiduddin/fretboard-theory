@@ -37,7 +37,7 @@ export function PatternList() {
 
       {/* Category tabs */}
       <div>
-        <span className="block font-mono text-xs tracking-widest uppercase text-stone-500 mb-2">
+        <span className="block font-mono text-xs tracking-widest uppercase text-stone-400 mb-2">
           Category
         </span>
         <div className="flex gap-1 bg-stone-900 rounded-lg p-1 border border-stone-800">

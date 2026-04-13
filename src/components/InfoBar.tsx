@@ -33,7 +33,7 @@ export function InfoBar() {
     <div className="flex items-center gap-3 flex-wrap">
 
       {/* Scale name */}
-      <h2 className="font-serif text-xl text-amber-300 shrink-0">
+      <h2 className="font-serif text-lg text-amber-300 shrink-0">
         {scaleName}
       </h2>
 
@@ -44,15 +44,15 @@ export function InfoBar() {
           const degree   = pattern.degrees[idx]
 
           return (
-            <div
-              key={idx}
-              style={getPillStyle(interval)}
-              className="flex flex-col items-center px-2.5 py-0.5 rounded-full border font-mono text-xs leading-tight"
-            >
-              <span className="font-medium">{noteName}</span>
-              <span className="text-[9px] opacity-70">{degree}</span>
-            </div>
-          )
+          <div
+            key={idx}
+            style={getPillStyle(interval)}
+            className="flex flex-col items-center px-2 py-0.5 rounded-full border font-mono leading-tight"
+          >
+            <span className="text-xs font-medium">{noteName}</span>
+            <span className="text-[8px] opacity-70">{degree}</span>
+          </div>
+        )
         })}
       </div>
 

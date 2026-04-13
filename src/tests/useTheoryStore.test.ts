@@ -20,6 +20,7 @@ beforeEach(() => {
     tuningLabel: 'Standard',
     triadMode:   'single',
     stringSet:   'all',
+    numFrets:    12,
   })
 })
 
