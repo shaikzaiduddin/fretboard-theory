@@ -5,7 +5,7 @@ who want to understand the neck, not just memorise patterns.
 
 ![Fretboard Theory App](./docs/screenshot.png)
 
-**[Live Demo →](#)** *(coming soon)*
+**[Live Demo →](https://fretboard-theory-eight.vercel.app/)
 
 ---
 
