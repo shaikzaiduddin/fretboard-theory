@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { ROLE_COLORS } from '../../data/theory'
-import { FRET_DOTS, DOT_RADIUS } from '../../hooks/useFretboard'
+import { ROLE_COLORS, NOTES } from '../../data/theory'
+import { FRET_DOTS } from '../../hooks/useFretboard'
 import type { FretboardRenderData } from '../../hooks/useFretboard'
 
 // ─── LAYOUT CONSTANTS ─────────────────────────────────────────────────────────
@@ -59,7 +59,6 @@ export interface FretboardDrawData {
 export function useFretboardDraw(
   renderData: FretboardRenderData,
   labelMode:  'note' | 'interval' | 'none',
-  noteNames:  string[],
   root:       number,
 ): FretboardDrawData {
 
@@ -73,8 +72,8 @@ export function useFretboardDraw(
     // String name label sits at FB_LEFT - 14 (left of nut, right of edge)
     // Open string dot (when in scale) sits at FB_LEFT - 28
     // This gives: label at -14, dot at -28, no overlap
-    const labelX   = FB_LEFT - 14
-    const openDotX = FB_LEFT - 28
+    const labelX   = FB_LEFT - 10
+    const openDotX = FB_LEFT - 26
 
     // ── Fret lines ──────────────────────────────────────────────────────────
     const fretLines = Array.from({ length: numFrets + 1 }, (_, f) => ({
@@ -106,7 +105,7 @@ export function useFretboardDraw(
         const thickness = 0.5 + (stringCount - 1 - s) * (1.4 / Math.max(stringCount - 1, 1))
 
         const openSemitone = ((tuning[s] % 12) + 12) % 12
-        const label        = noteNames[openSemitone]
+        const label        = NOTES[openSemitone]
 
         // Open string dot — sits clearly left of the label
         let openDot: DotRenderData | null = null
@@ -114,7 +113,7 @@ export function useFretboardDraw(
           openDot = buildDot(
             openDotX, y,
             intervalMap[openSemitone],
-            labelMode, noteNames, root
+            labelMode, root
           )
         }
 
@@ -127,7 +126,7 @@ export function useFretboardDraw(
               dots.push(buildDot(
                 FB_LEFT + (f - 0.5) * fretW, y,
                 intervalMap[noteSemitone],
-                labelMode, noteNames, root
+                labelMode, root
               ))
             }
           }
@@ -156,7 +155,6 @@ function buildDot(
   y:         number,
   info:      { interval: number; degree: string } | undefined,
   labelMode: 'note' | 'interval' | 'none',
-  noteNames: string[],
   root:      number,
 ): DotRenderData {
   const interval = info?.interval ?? 0
@@ -165,7 +163,7 @@ function buildDot(
 
   let label = ''
   if (labelMode === 'note') {
-    label = noteNames[((root + interval) % 12 + 12) % 12]
+    label = NOTES[((root + interval) % 12 + 12) % 12]
   } else if (labelMode === 'interval') {
     label = info?.degree ?? ''
   }

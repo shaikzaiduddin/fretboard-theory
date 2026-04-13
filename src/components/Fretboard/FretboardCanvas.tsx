@@ -1,7 +1,6 @@
 import { useTheoryStore }   from '../../stores/useTheoryStore'
 import { useFretboard }     from '../../hooks/useFretboard'
 import { useFretboardDraw } from './useFretboardDraw'
-import { NOTES }            from '../../data/theory'
 import { DOT_RADIUS, MIN_FRETS, MAX_FRETS } from '../../hooks/useFretboard'
 
 export function FretboardCanvas() {
@@ -11,7 +10,7 @@ export function FretboardCanvas() {
   const setNumFrets = useTheoryStore(s => s.setNumFrets)
 
   const renderData = useFretboard()
-  const draw       = useFretboardDraw(renderData, labelMode, NOTES, root)
+  const draw       = useFretboardDraw(renderData, labelMode, root)
 
   return (
     <div className="flex flex-col gap-3">
