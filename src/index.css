@@ -1,1 +1,222 @@
 @import "tailwindcss";
+
+/* ─── DESIGN TOKENS ──────────────────────────────────────────────────────────
+   CSS custom properties on :root are available globally.
+   Semantic names: --primary not --gold, --muted-foreground not --warm-grey.
+   This way if the primary colour changes, the name still makes sense.
+────────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* ── Background layers (darkest → lightest elevation) ── */
+  --background:             #0f0e0c;
+  --card:                   #1a1814;
+  --popover:                #242018;
+
+  /* ── Foreground (text) ── */
+  --foreground:             #f0ece4;
+  --card-foreground:        #f0ece4;
+  --popover-foreground:     #f0ece4;
+
+  /* ── Primary accent — Warm Gold ── */
+  --primary:                #c9a84c;
+  --primary-foreground:     #0f0e0c;
+  --accent:                 #e8c97a;
+  --accent-foreground:      #0f0e0c;
+
+  /* ── Secondary surfaces ── */
+  --secondary:              #1a1814;
+  --secondary-foreground:   #f0ece4;
+  --muted:                  #242018;
+  --muted-foreground:       #6a6050;
+
+  /* ── Semantic ── */
+  --destructive:            #cc7a7a;
+  --destructive-foreground: #f0ece4;
+
+  /* ── Borders — three strengths ──
+     rgba borders adapt to whatever surface is behind them.
+     0.07 = structural dividers, 0.14 = default, 0.22 = active/hover */
+  --border:                 rgba(255, 255, 255, 0.07);
+  --border-default:         rgba(255, 255, 255, 0.14);
+  --border-strong:          rgba(255, 255, 255, 0.22);
+
+  --input:                  #1a1814;
+  --ring:                   #c9a84c;
+
+  /* ── Text hierarchy shortcuts ── */
+  --text-primary:           #f0ece4;
+  --text-secondary:         #a09888;
+  --text-muted:             #6a6050;
+
+  /* ── Radius scale ── */
+  --radius-sm:              0.25rem;
+  --radius-md:              0.375rem;
+  --radius-lg:              0.625rem;
+  --radius-xl:              1rem;
+
+  /* ── Interval colours ── */
+  --interval-root:          #e8b931;   /* gold */
+  --interval-b2:            #64b5f6;   /* sky blue */
+  --interval-2:             #64b5f6;
+  --interval-b3:            #4ade80;   /* green */
+  --interval-3:             #4ade80;
+  --interval-4:             #fb923c;   /* amber */
+  --interval-s4:            #f472b6;   /* pink — tritone */
+  --interval-b5:            #f472b6;
+  --interval-5:             #22d3ee;   /* teal */
+  --interval-b6:            #a78bfa;   /* lavender */
+  --interval-6:             #a78bfa;
+  --interval-b7:            #ec4899;   /* rose */
+  --interval-7:             #f472b6;   /* fuchsia */
+
+  /* ── Solo Guide tier colours ── */
+  --variant-anchor:         #e8b931;
+  --variant-colour:         #4ade80;
+  --variant-passing:        #64b5f6;
+  --variant-avoid:          #f87171;
+
+  /* ── Fretboard ── */
+  --fretboard-wood:         #1c1508;
+  --fretboard-wood-mid:     #2a1a0a;
+  --fretboard-string:       #c8b878;
+  --fretboard-fret:         #5a4e38;
+  --fretboard-nut:          #f5f0e0;
+  --fretboard-inlay:        #2a2418;
+}
+
+@theme inline {
+  /* Fonts */
+  --font-sans:                'DM Sans', system-ui, sans-serif;
+  --font-serif:               'Playfair Display', Georgia, serif;
+  --font-mono:                'DM Mono', 'JetBrains Mono', monospace;
+
+  /* Colours — mapped from our :root tokens */
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-popover:            var(--popover);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-secondary:          var(--secondary);
+  --color-border:             var(--border-default);
+  --color-input:              var(--input);
+  --color-ring:               var(--ring);
+  --color-destructive:        var(--destructive);
+
+  /* Radius */
+  --radius-sm:                var(--radius-sm);
+  --radius-md:                var(--radius-md);
+  --radius-lg:                var(--radius-lg);
+  --radius-xl:                var(--radius-xl);
+}
+
+/* ─── BASE LAYER ─────────────────────────────────────────────────────────────
+   Global resets and defaults applied before any component styles.
+────────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    border-color: var(--border-default);
+    outline-color: var(--ring);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── SCROLLBAR ── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--muted-foreground); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) var(--background);
+}
+
+/* ─── SELECTION ── */
+::selection {
+  background: rgba(201, 168, 76, 0.3);
+  color: var(--text-primary);
+}
+
+/* ─── FOCUS ── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ─── FRETBOARD SCROLL HELPER ── */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer utilities {
+  .hover-text-secondary:hover { color: var(--text-secondary); }
+  .hover-text-primary:hover   { color: var(--text-primary); }
+  .hover-bg-card:hover        { background-color: var(--card); }
+  .hover-bg-popover:hover     { background-color: var(--popover); }
+  .hover-border-strong:hover  { border-color: var(--border-strong); }
+
+  /* Control group label — reused across ControlsRow dropdowns */
+  .control-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    padding-left: 2px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  /* Shared select/dropdown base style */
+  .control-select {
+    height: 32px;
+    background-color: #161412;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #e8e0d4;
+    border-radius: var(--radius-md);
+    padding: 0 10px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+    /* Custom chevron arrow as SVG data URI */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236a6050' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 24px;
+  }
+
+  .control-select:hover {
+    background-color: #1e1c18;
+    border-color: rgba(255,255,255,0.18);
+  }
+
+  .control-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.2);
+  }
+
+  /* Option styling — limited browser support but worth setting */
+  .control-select option {
+    background-color: #1a1814;
+    color: #e8e0d4;
+  }
+}

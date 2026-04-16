@@ -1,104 +1,114 @@
 // ChordGrid shows the 7 diatonic chords for the current key.
-// Clicking a chord card jumps to that chord's triad on the fretboard.
 //
-// This is only shown when category is 'scales' or 'modes' —
-// it's hidden when already in triads/seventh view since
-// that would be redundant.
-
+// Colour logic: chord root name is coloured by quality.
+// Gold = major, Green = minor, Red = diminished, Purple = augmented.
+// This mirrors the interval colour system — learners build the association
+// between colour and musical function across the whole app.
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheoryStore } from '../stores/useTheoryStore'
-import { NOTES } from '../data/theory'
-import { MAJOR_SCALE_INTERVALS, DIATONIC_QUALITIES } from '../data/scales'
+import { NOTES }          from '../data/theory'
+import {
+  DIATONIC_QUALITIES,
+  MAJOR_SCALE_INTERVALS,
+} from '../data/scales'
 
-const TYPE_LABELS = {
-  maj: 'Major',
-  min: 'Minor',
-  dom: 'Major',
-  dim: 'Dim',
-} as const
+// Chord quality → display colour mapping
+// Kept local to this component since nothing else needs it
+const CHORD_COLORS: Record<string, string> = {
+  maj: '#e8b931',  // gold   — major chords
+  min: '#4ade80',  // green  — minor chords
+  dim: '#f87171',  // red    — diminished chords
+  aug: '#a78bfa',  // purple — augmented chords
+}
 
 const containerVariants = {
   hidden:  {},
-  visible: {
-    transition: { staggerChildren: 0.05, delayChildren: 0.05 },
-  },
-  exit: {
-    transition: { staggerChildren: 0.03, staggerDirection: -1 },
-  },
+  visible: { transition: { staggerChildren: 0.05 } },
+  exit:    { transition: { staggerChildren: 0.03, staggerDirection: -1 } },
 }
 
 const cardVariants = {
-  hidden:  { opacity: 0, y: 12, scale: 0.92 },
-  visible: { opacity: 1, y: 0,  scale: 1 },
-  exit:    { opacity: 0, y: -8, scale: 0.95 },
+  hidden:  { opacity: 0, y: 8, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+  exit:    { opacity: 0, y: -4, scale: 0.97 },
 }
 
 export function ChordGrid() {
-  const root          = useTheoryStore(s => s.root)
-  const category      = useTheoryStore(s => s.category)
-  const setRoot       = useTheoryStore(s => s.setRoot)
-  const setCategory   = useTheoryStore(s => s.setCategory)
-  const setPatternIdx = useTheoryStore(s => s.setPatternIdx)
+  const root     = useTheoryStore(s => s.root)
+  const category = useTheoryStore(s => s.category)
 
   if (category !== 'scales' && category !== 'modes') return null
 
-  function handleChordClick(degreeIdx: number) {
-    const quality   = DIATONIC_QUALITIES[degreeIdx]
-    const chordRoot = (root + MAJOR_SCALE_INTERVALS[degreeIdx]) % 12
-    const triadIdx  = quality.type === 'dim' ? 2
-                    : quality.type === 'min' ? 1
-                    : 0
-    setRoot(chordRoot)
-    setCategory('triads')
-    setPatternIdx(triadIdx)
-  }
-
   return (
-    <div className="bg-stone-900 border border-stone-700 rounded-xl p-4">
-      <span className="block font-mono text-[10px] tracking-widest uppercase text-stone-400 mb-3">
-        Diatonic Chords — Key of {NOTES[root]}
-      </span>
+    <div className="w-full px-4 py-3 bg-[#0a0908] border-t">
+      <div className="flex items-center gap-5">
 
-      {/* AnimatePresence + key triggers exit/enter when root changes.
-          The key includes root so React treats each key change as
-          a completely new grid, triggering the animation cycle. */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={root}
-          className="flex gap-2 flex-wrap"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
-          {DIATONIC_QUALITIES.map((q, i) => {
-            const chordRoot = NOTES[(root + MAJOR_SCALE_INTERVALS[i]) % 12]
+        {/* Label */}
+        <span className="font-mono text-[9px] uppercase tracking-[0.15em]
+                         text-[#5a4a38] whitespace-nowrap">
+          Diatonic Chords
+        </span>
 
-            return (
-              <motion.button
-                key={q.degree}
-                variants={cardVariants}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
-                whileHover={{ y: -2, transition: { duration: 0.12 } }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleChordClick(i)}
-                className="bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 min-w-16 text-center hover:border-stone-500 hover:bg-stone-700 transition-colors duration-150 group"
-              >
-                <div className="font-serif text-base text-amber-300 group-hover:text-amber-200 transition-colors">
-                  {chordRoot}
-                </div>
-                <div className="font-mono text-xs text-stone-500 mt-0.5">
-                  {TYPE_LABELS[q.type]}
-                </div>
-                <div className="font-mono text-xs text-amber-700 mt-0.5">
-                  {q.degree}
-                </div>
-              </motion.button>
-            )
-          })}
-        </motion.div>
-      </AnimatePresence>
+        {/* Cards */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={root}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="flex items-center gap-2.5"
+          >
+            {DIATONIC_QUALITIES.map((quality, i) => {
+              // Calculate the root note of each diatonic chord
+              const chordRootIdx  = (root + MAJOR_SCALE_INTERVALS[i]) % 12
+              const chordRootName = NOTES[chordRootIdx]
+              const chordColor    = CHORD_COLORS[quality.type] ?? '#9ca3af'
 
+              return (
+                <motion.div
+                  key={i}
+                  variants={cardVariants}
+                  whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                  className="relative flex flex-col items-center py-2.5 px-4
+                             rounded-lg min-w-[72px] cursor-default
+                             bg-gradient-to-b from-[#161412] to-[#121010]
+                             border border-[rgba(255,255,255,0.07)]
+                             hover:from-[#1c1816] hover:to-[#161412]
+                             hover:border-[rgba(255,255,255,0.14)]
+                             hover:shadow-[0_6px_16px_rgba(0,0,0,0.35)]
+                             transition-all duration-150"
+                >
+                  {/* Chord root name — coloured by quality */}
+                  <span
+                    className="font-serif text-base font-medium"
+                    style={{ color: chordColor }}
+                  >
+                    {chordRootName}
+                  </span>
+
+                  {/* Chord type label */}
+                  <span className="text-[10px] text-[#6a5a48] mt-0.5">
+                    {quality.type === 'maj' ? 'major'
+                      : quality.type === 'min' ? 'minor'
+                      : quality.type === 'dim' ? 'dim'
+                      : quality.type}
+                  </span>
+
+                  {/* Roman numeral — monospace, subtle */}
+                  <span
+                    className="font-mono text-[10px] opacity-50 mt-1"
+                    style={{ color: chordColor }}
+                  >
+                    {quality.degree}
+                  </span>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </AnimatePresence>
+
+      </div>
     </div>
   )
 }

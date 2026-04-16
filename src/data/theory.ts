@@ -13,18 +13,18 @@ export const NOTES: NoteName[] = [
 // Stored here so the fretboard renderer and the legend both use the same source.
 // Index = semitone interval from root (0-11).
 export const ROLE_COLORS: Record<number, string> = {
-  0:  '#c9a84c', // root — gold
-  1:  '#7a6850', // ♭2
-  2:  '#7a6850', // 2nd
-  3:  '#7dc87a', // ♭3 — green (minor third)
-  4:  '#7dc87a', // 3rd — green (major third)
-  5:  '#7a6850', // 4th
-  6:  '#cc7a7a', // ♭5 — red (diminished fifth)
-  7:  '#cc7a7a', // 5th — red (perfect fifth)
-  8:  '#cc7a7a', // ♯5
-  9:  '#7a6850', // 6th
-  10: '#b57acc', // ♭7 — purple
-  11: '#b57acc', // 7th — purple
+  0:  '#e8b931',  // Root          — gold
+  1:  '#64b5f6',  // b2 / m2       — sky blue
+  2:  '#64b5f6',  // 2 / M2        — sky blue
+  3:  '#4ade80',  // b3 / m3       — green (minor 3rd)
+  4:  '#4ade80',  // 3 / M3        — green (major 3rd)
+  5:  '#fb923c',  // 4 / P4        — amber
+  6:  '#f472b6',  // b5 / tritone  — pink (most dissonant)
+  7:  '#22d3ee',  // 5 / P5        — teal (stable)
+  8:  '#a78bfa',  // b6 / #5       — lavender
+  9:  '#a78bfa',  // 6 / M6        — lavender
+  10: '#ec4899',  // b7 / m7       — rose (dominant tension)
+  11: '#f472b6',  // 7 / M7        — fuchsia (leading tone)
 }
 
 // Human readable names for each interval.
