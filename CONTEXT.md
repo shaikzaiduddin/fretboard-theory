@@ -1,135 +1,249 @@
-# Fretboard Theory — Project Context & Handoff Document
+# Fretboard Theory — Project Context & Handoff Document v4.0
 
-> **Purpose:** This document provides complete context for the Fretboard Theory project. Attach it to any AI model or new chat to resume work without losing context. It covers what the app is, what has been built, what the tech stack is, what decisions were made, and exactly where development is up to.
-
-> **Version:** 2.0 — Updated after Phase 2 completion (April 2026)
+> **Purpose:** Attach this to any new Claude chat to resume development instantly.
+> Say: "I am building the Fretboard Theory app. This document has full context.
+> I am currently at [describe where you are]. Help me continue."
+>
+> **Version:** 4.0 — Updated after layout redesign, design token system, and diatonic triads complete
+> **Date:** April 2026
 
 ---
 
-## 1. What Is This Project?
+## 1. Project Overview
 
-**Fretboard Theory** is an interactive guitar music theory learning web application. It is a personal portfolio project being built by Zaid, following industry-standard SDLC practices.
+**Fretboard Theory** is an interactive guitar music theory web application being built
+by Zaid as both a personal practice tool and a public portfolio project.
 
 ### Vision
-> "An intelligent guitar learning companion that makes music theory visual, interactive, and personal — from your first scale to your first improvised solo."
+> "An intelligent guitar learning companion that makes music theory visual,
+> interactive, and personal — from your first scale to your first improvised solo."
 
-### Current State
-The project started as a single-file HTML/CSS/JavaScript prototype (v3, fully working), was migrated to a production-grade React + TypeScript + Vite application in Phase 1, and has completed Phase 2 which added animations, visual polish, and the fret count slider.
+### Target User
+Intermediate guitarists who know scales and chords but want to improvise better.
+Built as a public tool other guitarists will actually use.
 
-### Long-Term Roadmap
-- **Phase 1** — Migrate HTML prototype to React + TypeScript ✅ Complete
-- **Phase 2** — Visual polish, animations, fret slider ✅ Complete
-- **Phase 3** — Real-time audio input, pitch detection (guitar → audio interface → browser) ⬜ Next
-- **Phase 4** — Quiz engine (random progressions, play and be evaluated) ⬜ Planned
-- **Phase 5** — Python FastAPI backend, chord detection via librosa FFT ⬜ Planned
-- **Phase 6** — AI practice companion (LLM integration) ⬜ Planned
+### Live URLs
+- **GitHub:** `https://github.com/shaikzaiduddin/fretboard-theory`
+- **Vercel (live):** Auto-deploys on every push to `main`
+- **Local dev:** `npm run dev` → `http://localhost:5173`
+- **Local path:** `~/Projects/fretboard-theory`
 
 ---
 
-## 2. Repository & Hosting
+## 2. Roadmap Status
 
-| Item | Detail |
-|------|--------|
-| GitHub repo | `https://github.com/shaikzaiduddin/fretboard-theory` |
-| Local path | `~/Projects/fretboard-theory` |
-| Hosting | Vercel (auto-deploys on every push to `main`) |
-| Dev server | `npm run dev` → `http://localhost:5173` |
+| Phase | Status | Description |
+|-------|--------|-------------|
+| 1 — Foundation | Complete | React + TypeScript migration, all theory features, 49 tests |
+| 2 — Visual Polish | Complete | Framer Motion animations, fret slider, fretboard improvements |
+| 3a — Layout Redesign | Complete | Top-bar layout, design tokens, colour system, diatonic triads |
+| 3b — Artist Feature | Next | Solo Guide artist tab, Claude API integration |
+| 3c — Quiz Engine | Planned | Chord-to-scale quiz, arpeggios, progressive difficulty |
+| 4 — Audio Input | Planned | Real-time pitch detection from guitar via audio interface |
+| 5 — Chord Detection | Planned | Python FastAPI backend, librosa FFT chord analysis |
+| 6 — AI Companion | Planned | LLM-powered practice suggestions and solo analysis |
+
+### Phase 3a Complete — What Was Built (April 2026)
+
+**Layout redesign:**
+- Full top-bar layout replacing old sidebar
+- Order: Header → KeyRow → ControlsRow → InfoBar → Fretboard → ChordGrid → SoloGuide
+- New folder `src/components/TopBar/` for new layout components
+- Old `src/components/Sidebar/` retained on disk but no longer imported
+- React Router not yet installed (deferred until quiz engine work begins)
+
+**Design system:**
+- Complete CSS custom property token system in `src/index.css`
+- Single merged `@theme inline` block for fonts + Tailwind colour bridge
+- Google Fonts added: Playfair Display (serif), DM Sans (UI), DM Mono (mono)
+- New `.vscode/settings.json` suppresses Tailwind v4 linter warnings
+- Custom hover utilities added (`hover-bg-popover`, `hover-text-secondary`, etc.)
+- Shared `control-select` class for dropdowns with custom chevron SVG
+
+**Colour system:**
+- New file `src/lib/colors.ts` — single source of truth for all note/interval colours
+- Per-interval unique colours (12 distinct hues) — learners can identify any
+  interval by colour alone
+- `ROLE_COLORS` in `theory.ts` updated to match
+- `getIntervalColor()`, `getVariantColor()`, `getIntervalBgColor()`,
+  `getIntervalBorderColor()` helpers
+
+**Category/Pattern linking:**
+- Pattern dropdown now filters by category
+- Scales category excludes modes (filtered at UI layer, not data layer)
+- Modes category shows all 7 modes
+- Data in `SCALE_PATTERNS` unchanged — still includes modes with `mode:true` flag
+
+**Diatonic triad mode:**
+- New `IntervalMapValue` interface in `useFretboard.ts` with `colorOverride`
+  and `isChordRoot` fields
+- When `category === 'triads' && triadMode === 'diatonic'`:
+  - All 7 diatonic chord roots shown simultaneously
+  - Colour-coded by chord quality: gold (maj), green (min), red (dim),
+    purple (aug)
+  - All chord root dots get a glow ring (tonic gets double ring)
+  - Interval is stored as semitone distance from key tonic (not from chord root)
+  - Degree field holds Roman numeral (I, ii, iii, IV, V, vi, vii°)
+- String Set filter control revealed when diatonic mode is active
+- Filter options: All strings, Str 1-3, Str 2-4, Str 3-5, Str 4-6
+
+**Solo Guide redesign:**
+- 2-column grid layout (`gridTemplateColumns: '1fr 2fr'`)
+- Left column: Landing Notes (with tier pills) + Note Strength Map
+- Right column: Theory text + Pro Move tip
+- StrengthMap rewritten as vertical bar chart with percentage-fill bars
+- Bar heights: anchor=100%, colour=75%, passing=50%, neutral=35%, avoid=15%
+- Gradient fills with subtle glow shadows
+
+**InfoBar enhancements:**
+- Chord quality legend replaces scale info when diatonic mode is active
+- Shows all 7 diatonic chords as coloured pills with Roman numerals + quality
+- Dot colours on fretboard match pill colours — instant cross-reference
+
+**Fretboard fixes:**
+- ViewBox aspect ratio corrected (was 3.1:1, now 5.86:1)
+- Container uses `maxHeight: 300` with `overflow: hidden`
+- `DOT_RADIUS` reduced from 8 to 6 to match compact coordinate system
+- Inlay dot offsets updated from +/-26 to +/-20 for new `FB_HEIGHT=100`
+- Fret slider removed from FretboardCanvas (moved to ControlsRow — no duplicates)
+- All strings always visible at any screen width (no clipping)
+
+### Deferred to Phase 3c (Quiz)
+- React Router installation
+- `/quiz` route and QuizPage
+- QuizPanel, QuizQuestion, QuizFeedback, QuizProgress components
+- Arpeggio category in PATTERNS_BY_CATEGORY
+- Verify quizData.ts and useQuizStore tests
+
+### Deferred to Phase 3b (Artist — next up)
+- `src/data/artistProfiles.ts` — 8 hardcoded artist profiles
+- Artist tab inside Solo Guide
+- Dropdown + custom search UI
+- Claude API integration for dynamic artist profiles
+- Fretboard auto-load artist's primary scale/mode
 
 ---
 
 ## 3. Tech Stack
 
-| Concern | Technology | Why |
-|---------|-----------|-----|
-| UI framework | React 18 + TypeScript | Scale, ecosystem, type safety |
-| Build tool | Vite 5 | Fast dev server, HMR, production bundling |
-| Styling | Tailwind CSS v4 | Utility-first, configured as Vite plugin |
-| State management | Zustand | Simple, scalable, no boilerplate |
-| Animation | Framer Motion | Enter/exit animations, layout animations, gesture feedback |
-| Physics animation | React Spring | Installed, reserved for Phase 3 fretboard upgrade |
-| Fretboard renderer | SVG (current), PixiJS WebGL (Phase 3) | SVG now for correctness, WebGL later for 60fps |
-| Pitch detection (Phase 3) | Pitchy (MPM algorithm) | Low latency, accurate, browser-native |
-| Backend (Phase 5) | FastAPI Python | WebSocket, librosa chord detection |
-| Testing | Vitest + React Testing Library | Unit + component tests |
-| CI/CD | GitHub Actions → Vercel | Auto-deploy on push |
+| Concern | Technology | Notes |
+|---------|-----------|-------|
+| Framework | React 18 + TypeScript | Strict mode enabled |
+| Build tool | Vite 5 | Hot reload, production bundling |
+| Styling | Tailwind CSS v4 | Vite plugin — NO config file, `@import "tailwindcss"` in index.css |
+| State | Zustand | useTheoryStore, useUIStore, useQuizStore (written, untested) |
+| Animation | Framer Motion | Throughout UI |
+| Physics | React Spring | Installed, reserved for Phase 4+ |
+| Fretboard | SVG now, PixiJS in Phase 4 | SVG for correctness, WebGL for 60fps audio |
+| Routing | React Router (not yet installed) | Will install for `/quiz` route |
+| Pitch detection | Pitchy (Phase 4) | MPM algorithm, <50ms latency |
+| Backend | FastAPI Python (Phase 5) | WebSocket, librosa chord detection |
+| Testing | Vitest + React Testing Library | 49 tests currently passing |
+| CI/CD | GitHub to Vercel | Auto-deploy on push to main |
+| Fonts | Google Fonts | Playfair Display, DM Sans, DM Mono |
 
-### Important Tailwind v4 Note
-Tailwind v4 does NOT use a config file or `tailwindcss init` command. It is configured as a Vite plugin:
+### Critical Config Notes
 
+**Tailwind v4** — no init command, no config file:
 ```ts
 // vite.config.ts
 import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  ...
+  test: { globals: true, environment: 'jsdom', setupFiles: './src/tests/setup.ts' }
 })
 ```
-
 ```css
 /* src/index.css */
 @import "tailwindcss";
+
+:root {
+  /* Design tokens — see Section 7 for full list */
+}
+
+@theme inline {
+  /* Fonts + colour bridge merged in single block */
+}
 ```
 
-### Vitest Config Note
-Must import `defineConfig` from `vitest/config`, NOT from `vite`:
-
+**Vitest** — must import from `vitest/config` not `vite`:
 ```ts
-import { defineConfig } from 'vitest/config'  // ← correct
+import { defineConfig } from 'vitest/config'
 ```
 
-### Framer Motion Patterns Used
-- `motion.g` with `initial/animate/exit` — fretboard dot enter/exit animations
-- `AnimatePresence` with `mode="wait"` — InfoBar pills, chord grid
-- `motion.div` with `height: 0 → 'auto'` — SoloGuide accordion
-- `layoutId` — category tab sliding indicator
-- `whileTap` + `whileHover` with spring — key grid and pattern list buttons
-- **Variants with staggerChildren** — InfoBar pills and chord cards stagger in left to right
-- **Key prop pattern** — changing `key` on AnimatePresence children triggers exit/enter cycle
+**VS Code** — suppress Tailwind v4 linter warnings:
+```json
+// .vscode/settings.json
+{
+  "css.lint.unknownAtRules": "ignore",
+  "tailwindCSS.experimental.configFile": null
+}
+```
+
+**Font loading** — in `index.html`:
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+```
 
 ---
 
-## 4. Project File Structure
+## 4. Current File Structure
 
 ```
 fretboard-theory/
+├── .vscode/
+│   └── settings.json                    ← Tailwind linter suppression
 ├── src/
 │   ├── components/
 │   │   ├── Fretboard/
-│   │   │   ├── FretboardCanvas.tsx      ← SVG fretboard renderer + Framer Motion dot animations
-│   │   │   └── useFretboardDraw.ts      ← coordinate maths hook (no noteNames param — uses NOTES directly)
-│   │   ├── Sidebar/
-│   │   │   ├── KeyGrid.tsx              ← 12 root note buttons with spring press animation
-│   │   │   ├── PatternList.tsx          ← scale/mode/chord selector with sliding tab indicator
-│   │   │   └── StringConfig.tsx         ← 6/7/8 string + tuning presets + per-string dropdowns
+│   │   │   ├── FretboardCanvas.tsx      ← SVG renderer with chord-root glow rings
+│   │   │   └── useFretboardDraw.ts      ← coordinate maths (reads colorOverride)
+│   │   ├── TopBar/                      ← NEW — replaces Sidebar
+│   │   │   ├── Header.tsx               ← app title + Explore/Quiz nav
+│   │   │   ├── KeyRow.tsx               ← 12 root note buttons full-width
+│   │   │   └── ControlsRow.tsx          ← category, pattern, triad view, string set, labels, strings, tuning, frets
+│   │   ├── Sidebar/                     ← RETIRED — files exist but not imported
+│   │   │   ├── KeyGrid.tsx              ← (unused)
+│   │   │   ├── PatternList.tsx          ← (unused)
+│   │   │   └── StringConfig.tsx         ← (unused)
 │   │   ├── SoloGuide/
-│   │   │   ├── SoloGuide.tsx            ← collapsible theory panel with accordion animation
-│   │   │   └── StrengthMap.tsx          ← note strength bar chart
-│   │   ├── InfoBar.tsx                  ← scale name + staggered note pills animation
-│   │   └── ChordGrid.tsx               ← diatonic chord cards with stagger animation
+│   │   │   ├── SoloGuide.tsx            ← 2-column layout, notes left + theory right
+│   │   │   └── StrengthMap.tsx          ← vertical bar chart with percentage fills
+│   │   ├── InfoBar.tsx                  ← scale name + pills, OR chord legend in diatonic mode
+│   │   └── ChordGrid.tsx                ← diatonic chord cards with stagger animation
 │   ├── data/
-│   │   ├── theory.ts                    ← NOTES, ROLE_COLORS, normalise(), noteName(), buildNoteSet(), buildIntervalMap()
-│   │   ├── scales.ts                    ← SCALE_PATTERNS, TRIAD_PATTERNS, SEVENTH_PATTERNS, MODES_ONLY, DIATONIC_QUALITIES, MAJOR_SCALE_INTERVALS
-│   │   ├── tunings.ts                   ← TUNING_PRESETS for 6/7/8 string (Standard, Drop D, Open G, DADGAD)
-│   │   └── soloGuides.ts               ← SOLO_GUIDES keyed by scale name
+│   │   ├── theory.ts                    ← NOTES, ROLE_COLORS (expanded), normalise(), noteName(), buildNoteSet(), buildIntervalMap()
+│   │   ├── scales.ts                    ← SCALE_PATTERNS, TRIAD_PATTERNS, SEVENTH_PATTERNS, MODES_ONLY, DIATONIC_QUALITIES, MAJOR_SCALE_INTERVALS, PATTERNS_BY_CATEGORY
+│   │   ├── tunings.ts                   ← TUNING_PRESETS (6/7/8 string)
+│   │   ├── soloGuides.ts                ← SOLO_GUIDES keyed by scale name
+│   │   └── quizData.ts                  ← generateQuestion(), CHORD_SCALE_ENTRIES (written, needs verification)
 │   ├── hooks/
-│   │   └── useFretboard.ts             ← computes noteSet + intervalMap + dimmedStrings from store
+│   │   └── useFretboard.ts              ← IntervalMapValue, CHORD_QUALITY_COLORS, diatonic branch
+│   ├── lib/
+│   │   └── colors.ts                    ← NEW — INTERVAL_COLORS, VARIANT_COLORS, getIntervalColor(), etc.
 │   ├── stores/
-│   │   ├── useTheoryStore.ts           ← root, category, pattern, tuning, string count, numFrets
-│   │   └── useUIStore.ts               ← soloGuideOpen, theme, lessonTab
+│   │   ├── useTheoryStore.ts            ← root, category, pattern, tuning, triadMode, stringSet, numFrets
+│   │   ├── useUIStore.ts                ← soloGuideOpen, theme, lessonTab
+│   │   └── useQuizStore.ts              ← written, needs verification
 │   ├── tests/
 │   │   ├── setup.ts
-│   │   ├── theory.test.ts              ← 11 tests
-│   │   ├── scales.test.ts              ← 9 tests
-│   │   ├── tunings.test.ts             ← 8 tests
-│   │   ├── soloGuides.test.ts          ← 5 tests
-│   │   └── useTheoryStore.test.ts      ← 16 tests
+│   │   ├── theory.test.ts               ← 11 tests
+│   │   ├── scales.test.ts               ← 9 tests
+│   │   ├── tunings.test.ts              ← 8 tests
+│   │   ├── soloGuides.test.ts           ← 5 tests
+│   │   ├── useTheoryStore.test.ts       ← 16 tests
+│   │   └── quizData.test.ts             ← written, needs verification
 │   ├── types/
-│   │   └── index.ts                    ← NoteName, Category, LabelMode, StringCount, ScalePattern, SoloGuide, TuningPreset, FretboardNote
-│   ├── App.tsx                          ← root component
+│   │   └── index.ts                     ← all interfaces (see Section 5)
+│   ├── App.tsx                          ← top-bar layout, no sidebar
 │   ├── main.tsx
-│   └── index.css                        ← @import "tailwindcss"
-├── CONTEXT.md                           ← this file
-├── README.md                            ← portfolio README with live demo link
+│   └── index.css                        ← design tokens, @theme inline, hover utilities
+├── index.html                           ← Google Fonts preconnect + link
+├── CONTEXT.md                           ← project context (this file's predecessor)
+├── FRETBOARD_THEORY_CONTEXT_V4.md       ← this file
+├── README.md
 ├── vite.config.ts
 ├── tsconfig.json
 ├── tsconfig.app.json                    ← strict: true, noUnusedLocals, noUnusedParameters
@@ -138,182 +252,337 @@ fretboard-theory/
 
 ---
 
-## 5. Key Data Structures
+## 5. TypeScript Types
 
-### ScalePattern (src/types/index.ts)
 ```ts
+// src/types/index.ts
+export type NoteName = 'C'|'C#'|'D'|'D#'|'E'|'F'|'F#'|'G'|'G#'|'A'|'A#'|'B'
+export type Category = 'scales'|'triads'|'seventh'|'modes'
+export type LabelMode = 'note'|'interval'|'none'
+export type StringCount = 6|7|8
+
 export interface ScalePattern {
-  name:      string     // "Major", "Dorian (Mode II)"
-  intervals: number[]   // semitone distances from root e.g. [0,2,4,5,7,9,11]
-  steps:     string     // "W W H W W W H"
-  degrees:   string[]   // ["R","2","3","4","5","6","7"]
-  mode?:     boolean    // true for mode entries in scales list
+  name: string; intervals: number[]; steps: string; degrees: string[]; mode?: boolean
 }
-```
 
-### SoloGuide (src/types/index.ts)
-```ts
 export interface SoloGuide {
-  s1: number[]   // anchor intervals — strongest landing notes
-  s2: number[]   // colour intervals
-  s3: number[]   // passing intervals
-  av: number[]   // avoid intervals
-  theory: string // HTML string with <strong> and <em> tags
-  tip:    string // "Pro Move" HTML string
+  s1: number[]  // anchor
+  s2: number[]  // colour
+  s3: number[]  // passing
+  av: number[]  // avoid
+  theory: string
+  tip: string
 }
-```
 
-### TuningPreset (src/types/index.ts)
-```ts
 export interface TuningPreset {
-  label:   string
-  tunings: Record<StringCount, number[]>  // StringCount = 6 | 7 | 8
+  label: string
+  tunings: Record<StringCount, number[]>
 }
+
+export interface FretboardNote {
+  string: number; fret: number; interval: number; degree: string
+}
+
+// Quiz types
+export type QuizLevel = 1|2|3
+export interface QuizQuestion { /* ... */ }
+export interface QuizAnswer   { /* ... */ }
+export interface QuizProgress { /* ... */ }
+export interface QuizSession  { /* ... */ }
 ```
-
-### Tuning representation
-Tunings are stored as **semitone indices (0–11)**, not note names or Hz frequencies.
-- Standard 6-string: `[4, 9, 2, 7, 11, 4]` = E A D G B e
-- 7-string adds low B (11) at index 0
-- 8-string adds low F# (6) at index 0
-
----
-
-## 6. Core Theory Utilities (src/data/theory.ts)
 
 ```ts
-export function normalise(n: number): number {
-  return ((n % 12) + 12) % 12
+// src/hooks/useFretboard.ts — NEW exported type
+export interface IntervalMapValue {
+  interval:       number        // semitones from key tonic
+  degree:         string        // interval label OR Roman numeral
+  colorOverride?: string        // set in diatonic mode for chord quality colour
+  isChordRoot?:   boolean       // triggers glow ring in diatonic mode
 }
-
-export function noteName(root: number, interval: number): NoteName {
-  return NOTES[normalise(root + interval)]
-}
-
-export function buildNoteSet(root: number, intervals: number[]): Set<number>
-
-export function buildIntervalMap(root, intervals, degrees): Record<number, {...}>
 ```
 
 ---
 
-## 7. Zustand Stores
+## 6. Zustand Stores
 
-### useTheoryStore
+### useTheoryStore (src/stores/useTheoryStore.ts)
 ```ts
 // State
-root:        number       // 0-11
-category:    Category     // 'scales' | 'triads' | 'seventh' | 'modes'
-patternIdx:  number
-labelMode:   LabelMode    // 'note' | 'interval' | 'none'
-stringCount: StringCount  // 6 | 7 | 8
-tuning:      number[]
-tuningLabel: string
-triadMode:   'single' | 'diatonic'
-stringSet:   string
-numFrets:    number       // default 12, min 12, max 24 — controlled by fret slider
+root: number              // 0-11
+category: Category        // 'scales'|'triads'|'seventh'|'modes'
+patternIdx: number
+labelMode: LabelMode      // 'note'|'interval'|'none'
+stringCount: StringCount  // 6|7|8
+tuning: number[]
+tuningLabel: string       // 'Standard'|'Drop D'|'Open G'|'DADGAD'
+triadMode: 'single'|'diatonic'
+stringSet: string         // 'all'|'0-2'|'1-3'|'2-4'|'3-5'
+numFrets: number          // default 12, min 12, max 24
 
-// Key actions
-setRoot(root)
-setCategory(category)
-setStringCount(count)
-setStringByIdx(idx, semitone)
-applyPreset(label, count)
-setNumFrets(n)
+// Actions
+setRoot, setCategory, setPatternIdx, setLabelMode
+setStringCount, setStringByIdx, setTuning, setTuningLabel
+setTriadMode, setStringSet, setNumFrets, applyPreset
 getCurrentPattern()
 ```
 
-### useUIStore
+### useUIStore (src/stores/useUIStore.ts)
 ```ts
-soloGuideOpen:   boolean
+soloGuideOpen: boolean
 uploadPanelOpen: boolean
-theme:           'dark' | 'light'
-lessonTab:       'overview' | 'techniques' | 'theory' | 'tips'
+theme: 'dark'|'light'
+lessonTab: 'overview'|'techniques'|'theory'|'tips'
+triadModeVisible: boolean
 
-toggleSoloGuide()
-toggleUploadPanel()
-toggleTheme()
-setLessonTab(tab)
+toggleSoloGuide(), toggleUploadPanel(), toggleTheme()
+setLessonTab(tab), setTriadModeVisible(visible)
+```
+
+### useQuizStore (src/stores/useQuizStore.ts) — written, verify tests
+```ts
+// Uses zustand persist middleware
+// progress: QuizProgress  — persisted to localStorage
+// session: QuizSession    — NOT persisted
+
+startSession(level?), submitAnswer(chosen), nextQuestion(), endSession(), resetProgress()
 ```
 
 ---
 
-## 8. Fretboard Architecture
+## 7. Design Token System
+
+CSS custom properties in `src/index.css` — single source of truth for all colours,
+spacing, and typography. Components reference these via `var(--token-name)` or
+Tailwind utilities (where bridged via `@theme inline`).
+
+```css
+:root {
+  /* Background layers */
+  --background:          #0f0e0c;
+  --card:                #1a1814;
+  --popover:             #242018;
+
+  /* Text */
+  --foreground:          #f0ece4;
+  --text-primary:        #f0ece4;
+  --text-secondary:      #a09888;
+  --text-muted:          #6a6050;
+
+  /* Primary accent — Warm Gold */
+  --primary:             #c9a84c;
+  --accent:              #e8c97a;
+
+  /* Borders (3 strengths) */
+  --border:              rgba(255, 255, 255, 0.07);
+  --border-default:      rgba(255, 255, 255, 0.14);
+  --border-strong:       rgba(255, 255, 255, 0.22);
+
+  /* Interval colours — per-degree unique */
+  --interval-root:       #e8b931;
+  --interval-b2:         #64b5f6;
+  --interval-2:          #64b5f6;
+  --interval-b3:         #4ade80;
+  --interval-3:          #4ade80;
+  --interval-4:          #fb923c;
+  --interval-s4:         #f472b6;
+  --interval-b5:         #f472b6;
+  --interval-5:          #22d3ee;
+  --interval-b6:         #a78bfa;
+  --interval-6:          #a78bfa;
+  --interval-b7:         #ec4899;
+  --interval-7:          #f472b6;
+
+  /* Solo Guide tier colours */
+  --variant-anchor:      #e8b931;
+  --variant-colour:      #4ade80;
+  --variant-passing:     #64b5f6;
+  --variant-avoid:       #f87171;
+
+  /* Fretboard */
+  --fretboard-wood:      #1c1508;
+  --fretboard-string:    #c8b878;
+  --fretboard-fret:      #5a4e38;
+  --fretboard-nut:       #f5f0e0;
+  --fretboard-inlay:     #2a2418;
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 1rem;
+}
+```
+
+`src/lib/colors.ts` mirrors these values as TypeScript constants because
+SVG inline style props can't resolve CSS custom properties directly.
+
+---
+
+## 8. Music Theory Data
+
+### Core utilities (src/data/theory.ts)
+```ts
+export const NOTES: NoteName[]     // ['C','C#',...,'B']
+export const ROLE_COLORS: Record<number, string>  // 0-11 semitone index to colour
+export function normalise(n: number): number
+export function noteName(root, interval): NoteName
+export function buildNoteSet(root, intervals): Set<number>
+export function buildIntervalMap(root, intervals, degrees): Record<number, IntervalMapValue>
+```
+
+### ROLE_COLORS — expanded per-interval system
+```ts
+0:  '#e8b931'  // Root    — gold
+1:  '#64b5f6'  // b2/m2   — sky blue
+2:  '#64b5f6'  // 2/M2    — sky blue
+3:  '#4ade80'  // b3/m3   — green
+4:  '#4ade80'  // 3/M3    — green
+5:  '#fb923c'  // 4/P4    — amber
+6:  '#f472b6'  // b5      — pink (tritone)
+7:  '#22d3ee'  // 5/P5    — teal
+8:  '#a78bfa'  // b6/#5   — lavender
+9:  '#a78bfa'  // 6/M6    — lavender
+10: '#ec4899'  // b7/m7   — rose
+11: '#f472b6'  // 7/M7    — fuchsia
+```
+
+### Scale data (src/data/scales.ts)
+```ts
+export const PATTERNS_BY_CATEGORY = {
+  scales: SCALE_PATTERNS,   // includes modes with mode:true — filtered at UI layer
+  triads: TRIAD_PATTERNS,
+  seventh: SEVENTH_PATTERNS,
+  modes: MODES_ONLY,
+}
+
+export const MAJOR_SCALE_INTERVALS = [0,2,4,5,7,9,11]
+export const DIATONIC_QUALITIES = [
+  {degree:'I', type:'maj', intervals:[0,4,7]},
+  {degree:'ii', type:'min', intervals:[0,3,7]},
+  {degree:'iii', type:'min', intervals:[0,3,7]},
+  {degree:'IV', type:'maj', intervals:[0,4,7]},
+  {degree:'V', type:'maj', intervals:[0,4,7]},
+  {degree:'vi', type:'min', intervals:[0,3,7]},
+  {degree:'vii°', type:'dim', intervals:[0,3,6]},
+]
+```
+
+### Tunings (src/data/tunings.ts)
+Stored as semitone indices (0=C, 11=B), low to high:
+- Standard 6-string: [4,9,2,7,11,4] = E A D G B e
+- 7-string: add 11 (low B) at index 0
+- 8-string: add 6 (low F#) at index 0
+
+---
+
+## 9. Fretboard Architecture
 
 ### Data flow
 ```
-useTheoryStore (state)
-      ↓
-useFretboard (hook) → computes noteSet + intervalMap + dimmedStrings + numFrets
-      ↓
-useFretboardDraw (hook) → computes SVG coordinates, dot positions, string data
-      ↓
-FretboardCanvas (component) → renders SVG + Framer Motion animated dots
+useTheoryStore
+    to
+useFretboard (hook) produces noteSet + intervalMap + dimmedStrings + numFrets
+    to
+useFretboardDraw (hook) produces SVG coordinates, dot positions
+    to
+FretboardCanvas renders SVG with Framer Motion animated dots
 ```
 
 ### Layout constants (useFretboardDraw.ts)
 ```ts
-const FB_LEFT   = 46    // left margin — string labels sit at FB_LEFT - 10
-const FB_TOP    = 28
+const FB_LEFT   = 46    // string labels sit at FB_LEFT - 10
+const FB_TOP    = 14    // was 28 — halved for compact layout
 const FB_WIDTH  = 800
-const FB_HEIGHT = 195
-// openDotX = FB_LEFT - 26  (open string dots, left of nut)
-// labelX   = FB_LEFT - 10  (string name text labels)
+const FB_HEIGHT = 100   // was 195 — halved for 5.86:1 aspect ratio
+// totalHeight = FB_TOP + FB_HEIGHT + 26 = 140
+// viewBox = "0 0 820 140"
+// At 1440px container width: SVG renders at 246px tall (fits without scroll)
 ```
 
-### Dot radius
+### useFretboard.ts exports
 ```ts
-export const DOT_RADIUS = 8  // in src/hooks/useFretboard.ts
+export const MAX_FRETS  = 24
+export const MIN_FRETS  = 12
+export const FRET_DOTS  = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24]
+export const DOT_RADIUS = 6  // was 8 — scaled for compact coord system
 ```
 
-### Fret slider
-- `numFrets` lives in `useTheoryStore`
-- Default: 12, Min: 12, Max: 24
-- `MIN_FRETS` and `MAX_FRETS` exported from `useFretboard.ts`
-- `FRET_DOTS = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24]` — inlay positions
-
-### Important: noteNames removed from useFretboardDraw
-`useFretboardDraw` previously took `noteNames` as a parameter causing React
-compiler warnings. It now imports `NOTES` directly from `theory.ts`.
-
+### Diatonic mode logic
 ```ts
-// Correct signature
-export function useFretboardDraw(
-  renderData: FretboardRenderData,
-  labelMode:  'note' | 'interval' | 'none',
-  root:       number,
-): FretboardDrawData
+if (category === 'triads' && triadMode === 'diatonic') {
+  // Pass 1: chord roots get colorOverride + isChordRoot: true
+  // interval = MAJOR_SCALE_INTERVALS[di] (distance from tonic, not chord root)
+  // degree = Roman numeral (I, ii, iii, etc.)
+
+  // Pass 2: thirds and fifths get colorOverride (shared with root's chord)
+  // interval = (MAJOR_SCALE_INTERVALS[di] + iv) % 12
+  // Only assigned if note index not already claimed by a root in pass 1
+}
 ```
 
-### Color coding
-```ts
-0:  '#c9a84c'  // root — gold
-3:  '#7dc87a'  // minor 3rd — green
-4:  '#7dc87a'  // major 3rd — green
-6:  '#cc7a7a'  // diminished 5th — red
-7:  '#cc7a7a'  // perfect 5th — red
-10: '#b57acc'  // minor 7th — purple
-11: '#b57acc'  // major 7th — purple
+### FretboardCanvas dot rendering
+```tsx
+// Tonic (isRoot true) gets DOUBLE glow ring at r=DR+3 and r=DR+1.5
+// Non-tonic chord roots (isChordRoot true) get SINGLE glow ring at r=DR+1.5
+// Non-root chord tones get no glow, opacity 0.82
 ```
 
 ---
 
-## 9. Animation System (Framer Motion)
+## 10. Component Patterns
 
-### Patterns in use
-
-**Dot animations (FretboardCanvas.tsx)**
+### ControlsRow category/pattern linking
 ```tsx
-<motion.g
-  initial={{ opacity: 0, scale: 0.4 }}
-  animate={{ opacity: 1, scale: 1 }}
-  exit={{ opacity: 0, scale: 0.3 }}
-  transition={{ duration: 0.2, delay, ease: 'easeOut' }}
-  style={{ transformOrigin: `${dot.x}px ${dot.y}px` }}
->
+const allPatterns = PATTERNS_BY_CATEGORY[category]
+const patterns = category === 'scales'
+  ? allPatterns.filter(p => !p.mode)   // strip modes from scales dropdown
+  : allPatterns
 ```
 
-**Accordion panel (SoloGuide.tsx)**
+### InfoBar diatonic mode
+```tsx
+if (category === 'triads' && triadMode === 'diatonic') {
+  return <ChordLegend />  // 7 chord pills, gold/green/red by quality
+}
+return <ScaleInfo />      // normal scale name + note pills
+```
+
+### Solo Guide 2-column grid
+```tsx
+<div
+  className="p-5 grid gap-8 border-t"
+  style={{
+    gridTemplateColumns: '1fr 2fr',  // left 1/3, right 2/3
+    borderColor: 'var(--border)',
+  }}
+>
+  <div>{/* Landing notes + StrengthMap */}</div>
+  <div>{/* Theory + Pro Move */}</div>
+</div>
+```
+
+### StrengthMap bars
+```tsx
+// Each bar: container height 56, fill height = strengthPercent %
+// s1 (anchor) = 100%, s2 (colour) = 75%, s3 (passing) = 50%
+// neutral = 35%, av (avoid) = 15%
+// Fill: linear-gradient(180deg, color, color80)
+```
+
+---
+
+## 11. Animation Patterns (Framer Motion)
+
+**Dot stagger** (FretboardCanvas):
+```tsx
+initial={{ opacity: 0, scale: 0.4 }}
+animate={{ opacity: 1, scale: 1 }}
+exit={{ opacity: 0, scale: 0.3 }}
+transition={{ duration: 0.2, delay, ease: 'easeOut' }}
+style={{ transformOrigin: `${dot.x}px ${dot.y}px` }}
+```
+
+**Accordion** (SoloGuide body):
 ```tsx
 <AnimatePresence initial={false}>
   {sgOpen && (
@@ -323,234 +592,173 @@ export function useFretboardDraw(
       exit={{ height: 0, opacity: 0 }}
       transition={{ duration: 0.25, ease: 'easeInOut' }}
       style={{ overflow: 'hidden' }}
-    >
+    />
+  )}
+</AnimatePresence>
 ```
 
-**Stagger variants (InfoBar.tsx, ChordGrid.tsx)**
+**Stagger variants** (InfoBar, ChordGrid):
 ```tsx
 const containerVariants = {
-  hidden:  {},
+  hidden: {},
   visible: { transition: { staggerChildren: 0.04 } },
-}
-const itemVariants = {
-  hidden:  { opacity: 0, scale: 0.7, y: -4 },
-  visible: { opacity: 1, scale: 1,   y:  0 },
+  exit: { transition: { staggerChildren: 0.03, staggerDirection: -1 } },
 }
 ```
 
-**Sliding tab indicator (PatternList.tsx)**
+**Spring press** (KeyRow buttons):
 ```tsx
-{cat === category && (
-  <motion.div
-    layoutId="categoryIndicator"
-    className="absolute inset-0 bg-stone-700 rounded-md"
-    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-  />
-)}
-```
-
-**Spring button press (KeyGrid.tsx)**
-```tsx
-<motion.button
-  whileTap={{ scale: 0.88 }}
-  whileHover={{ scale: 1.08 }}
-  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
->
-```
-
-**Key prop pattern — triggers exit/enter cycle**
-```tsx
-// When key changes, React unmounts old component (triggering exit)
-// and mounts new component (triggering enter)
-<AnimatePresence mode="wait">
-  <motion.div key={`${root}-${pattern.name}`}>
+whileTap={{ scale: 0.93 }}
+whileHover={{ scale: 1.05 }}
+transition={{ type: 'spring', stiffness: 400, damping: 17 }}
 ```
 
 ---
 
-## 10. What Has Been Built
+## 12. Development Workflow
 
-### Phase 1 — Foundation ✅ Complete
-| File | Tests |
-|------|-------|
-| `src/types/index.ts` | Type-checked |
-| `src/data/theory.ts` | 11 tests |
-| `src/data/scales.ts` | 9 tests |
-| `src/data/tunings.ts` | 8 tests |
-| `src/data/soloGuides.ts` | 5 tests |
-| `src/stores/useTheoryStore.ts` | 16 tests |
-| `src/stores/useUIStore.ts` | — |
-| `src/hooks/useFretboard.ts` | — |
-| All components | — |
-
-**Total: 49 tests passing**
-
-### Phase 2 — Visual Polish & Animations ✅ Complete
-- Framer Motion installed and integrated throughout
-- Fretboard dot stagger animations (enter/exit)
-- Solo Guide accordion animation
-- Key grid spring press and hover
-- Category tab sliding indicator (layoutId)
-- Pattern list press feedback
-- InfoBar pill stagger animations
-- Chord grid card deal stagger
-- Fret count slider (12–24 frets)
-- Open string dot overlap fixed
-- Wood grain fretboard background
-- Root note double glow ring
-- Dot radius reduced to 8 for better proportions
-
-### Phase 3 — Audio Input ⬜ Next
-- Web Audio API setup
-- Pitchy pitch detection
-- AudioMonitor component
-- Real-time fretboard highlighting
-
----
-
-## 11. What to Build Next (Phase 3)
-
-### Goal
-Connect a guitar via audio interface, detect single notes being played,
-and highlight them on the fretboard in real time.
-
-### Files to create
-```
-src/components/AudioMonitor/
-├── AudioMonitor.tsx        ← UI: device picker, confidence meter, detected note display
-└── useAudioInput.ts        ← Web Audio API hook: getUserMedia, AudioWorklet, Pitchy
-```
-
-### Store changes needed
-Add to `useTheoryStore` or create new `useAudioStore`:
-```ts
-inputDevice:   string | null
-streamActive:  boolean
-detectedNote:  number | null   // semitone 0-11
-confidence:    number          // 0-1
-```
-
-### Data flow for audio
-```
-Guitar → Audio Interface → Browser getUserMedia()
-      → AudioContext → AudioWorkletNode
-      → Pitchy PitchDetector → { pitch: Hz, clarity: float }
-      → if clarity > 0.85: convert Hz to semitone → update store
-      → Fretboard highlights detected note
-      → SoloGuide shows whether note is Anchor/Colour/Avoid
-```
-
-### Key technical notes
-- Use `AudioWorkletNode` not `ScriptProcessorNode` (deprecated)
-- Pitchy MPM algorithm is more accurate than autocorrelation for guitar
-- Target latency: < 50ms from note played to visual feedback
-- Audio data must never leave the browser (privacy requirement)
-- Hz to semitone: `Math.round(12 * Math.log2(hz / 440) + 69)` gives MIDI note, then `% 12` for semitone
-
----
-
-## 12. Features the App Has
-
-### Working features
-- 12 root key selector with spring animations
-- 30+ scale patterns including all 7 modes
-- Triads, 7th chords, Key Triads view
-- String subset filter for Key Triads
-- 6/7/8 string guitar support
-- 4 tuning presets + per-string custom tuning
-- Fret count slider (12–24 frets)
-- Note label modes: note name, interval degree, none
-- Solo Guide with landing notes, strength map, theory, pro tip
-- Diatonic chord grid with animated card entrance
-- Animated fretboard dots with stagger
-- Smooth panel animations throughout
-
-### Features NOT yet built
-- Audio input from guitar
-- Real-time pitch detection
-- Quiz engine
-- AI practice companion
-
----
-
-## 13. Development Workflow
-
-### Daily commands
 ```bash
 cd ~/Projects/fretboard-theory
 npm run dev          # localhost:5173
-npm test             # watch mode
+npm test             # watch mode — 49 tests
 npx tsc --noEmit     # type check
 npm run build        # production build
 ```
 
-### Git workflow
 ```bash
 git add .
 git commit -m "feat: description"
 git push             # triggers Vercel auto-deploy
 ```
 
-### Commit types
-- `feat:` — new feature
-- `fix:` — bug fix
-- `chore:` — maintenance
-- `refactor:` — restructure without new features
-- `test:` — tests
-- `docs:` — documentation
+### Commit conventions
+feat, fix, chore, refactor, test, docs
+
+### Definition of Done (per feature)
+- TypeScript compiles with zero errors
+- ESLint passes with zero warnings (except `tailwindcss/no-arbitrary-value` — style only)
+- Tests written and passing
+- Manually verified in browser
+- Committed and pushed
 
 ---
 
-## 14. Known Patterns and Gotchas
+## 13. Known Patterns and Gotchas
 
 ### TypeScript
-- `noUnusedLocals` — every import must be used
-- Unused destructured values: use `([, value])` not `([_key, value])`
+- Unused destructured values: `([, value])` not `([_key, value])`
 - Unused parameters: prefix with `_`
+- `noUnusedLocals` enforced — every import must be used
 
-### Zustand testing
-- Always reset store in `beforeEach` — stores are singletons
+### Character encoding in code files
+- Avoid em dashes, curly quotes, and other Unicode typographic characters
+- Some editor/terminal combos corrupt them into multi-byte sequences that break TS parser
+- Symptom: "parameter declared but never read" + unexpected `}` errors
+- Fix: use plain ASCII in code comments — "->" instead of em dash, straight quotes only
+
+### Zustand
+- Stores are singletons — reset in `beforeEach` in tests
 - Use `getState()` / `setState()` in tests, not the hook
 
 ### Framer Motion
-- `transformOrigin` must be set on SVG `motion.g` elements or scale animates from SVG origin
-- `AnimatePresence` requires `initial={false}` if you don't want entry animation on first mount
-- `layoutId` elements must be in the same `LayoutGroup` if across different component trees
-- Variants defined outside components avoid recreation on every render
+- `transformOrigin` required on SVG `motion.g` — set to `${dot.x}px ${dot.y}px`
+- `AnimatePresence` needs `initial={false}` to skip entry animation on first mount
+- Variants defined outside components to avoid recreation on every render
 
-### Solo guide name lookup
-- Scales: key = full name e.g. `"Major"`
-- Modes: strip suffix — `"Dorian (Mode II)"` → lookup as `"Dorian"`
-- Pattern: `pattern.name.replace(/ \(Mode [IVX]+\)/, '').trim()`
+### Solo Guide name lookup
+- Scales: key = full name e.g. `"Major"`, `"Natural Minor"`
+- Modes: strip suffix — `"Dorian (Mode II)"` becomes `"Dorian"`
+- Code: `pattern.name.replace(/ \(Mode [IVX]+\)/, '').trim()`
 
 ### useFretboardDraw
-- Does NOT take `noteNames` as parameter — imports `NOTES` directly
-- `numFrets` comes from `renderData` which comes from `useFretboard` which reads from store
-- `noteNames` must NOT be in the useMemo dependency array
+- Does NOT accept `noteNames` as parameter — imports `NOTES` directly from theory.ts
+- `numFrets` comes through `renderData` from `useFretboard` (reads from store)
+- Do not add `noteNames` to useMemo dependency array
+
+### CSS custom properties in Tailwind
+- `var(--foo)` cannot be used inside Tailwind's `hover:` prefix
+- Solution: custom utility classes in `@layer utilities` block in index.css
+- OR use inline `style={{}}` with `onMouseEnter`/`onMouseLeave`
+
+### SVG sizing
+- viewBox and width/height attributes are independent
+- `width="100%"` scales to container width; height calculates from viewBox aspect ratio
+- For fixed-height displays: constrain via `maxHeight` on container + `overflow: hidden`
+- For aspect ratio control: adjust viewBox dimensions, NOT the container CSS
 
 ---
 
-## 15. Architecture Decisions
+## 14. What Is Done vs What's Next
+
+### Fully Complete
+- All theory data (scales, modes, triads, 7ths, tunings, solo guides)
+- useTheoryStore, useUIStore with all actions
+- Fretboard SVG renderer with animated dots, glow rings, chord-quality colouring
+- Fret slider (12-24 frets) in ControlsRow
+- SoloGuide 2-column layout with bar chart
+- InfoBar with stagger animation + diatonic chord legend
+- ChordGrid with card deal animation
+- TopBar layout (Header + KeyRow + ControlsRow)
+- Design token system in index.css + colors.ts
+- Google Fonts integration
+- Diatonic triad mode with chord quality colours and glow rings
+- String set filter for diatonic view
+- Category/Pattern dropdown linking
+- 49 tests passing
+- Vercel deployment with auto-deploy
+
+### Written but needs verification
+- `src/data/quizData.ts` — generateQuestion(), shouldLevelUp(), CHORD_SCALE_ENTRIES
+- `src/stores/useQuizStore.ts` — persist middleware, startSession, submitAnswer
+- `src/tests/quizData.test.ts` — test suite for quiz data
+
+### Not yet built — Next: Phase 3b Artist Feature
+1. Create `src/data/artistProfiles.ts` with 8 hardcoded profiles
+   (BB King, Clapton, Gilmour, Santana, Hendrix, Mayer, Slash, Satriani)
+2. Extend `useUIStore` with `selectedArtist`, `artistTabOpen` state
+3. Add Artist tab inside Solo Guide (alongside existing content)
+4. Build dropdown + custom search UI
+5. Claude API integration for unknown artists (dynamic profile generation)
+6. Fretboard auto-load artist's primary scale/mode when selected
+
+### After Artist — Phase 3c Quiz Engine
+1. Verify quiz data and store tests pass
+2. Install React Router, create `src/pages/` folder
+3. Build Quiz components (QuizPanel, QuizQuestion, QuizFeedback, QuizProgress)
+4. Wire QuizPage at `/quiz` route
+5. Add 'arpeggios' to Category type and PATTERNS_BY_CATEGORY
+6. Add ARPEGGIO_PATTERNS to scales.ts
+
+---
+
+## 15. Future API Research
+
+When ready to add song references to scales/modes:
+- Hooktheory API — chord progressions to real songs
+- Spotify API — audio features, genres, metadata
+- Songsterr API — guitar tabs and chords by song
+
+---
+
+## 16. Architecture Decisions Summary
 
 | Decision | Choice | Reason |
 |----------|--------|--------|
-| Framework | React + TypeScript | Type safety, ecosystem |
-| Fretboard | SVG now, PixiJS Phase 3 | SVG debuggable; WebGL for 60fps with audio |
-| Animation | Framer Motion | Layout animations, enter/exit, gesture feedback |
-| State | Zustand | No boilerplate, selective re-renders |
-| Pitch detection | Pitchy (browser) | MPM algorithm, <50ms, no backend |
-| Chord detection | FastAPI Python (Phase 5) | librosa FFT |
-| Hosting | Vercel | Auto-deploy, free tier |
+| Framework | React + TypeScript strict | Type safety across complex music theory data |
+| State | Zustand | No boilerplate, selective re-renders, persist middleware |
+| Animation | Framer Motion | Layout animations, enter/exit, gesture props |
+| Fretboard now | SVG | Debuggable, correct, good enough for Phase 1-3 |
+| Fretboard Phase 4+ | PixiJS WebGL | 60fps needed for audio input visual feedback |
+| Design system | CSS custom properties + Tailwind v4 bridge | Single source of truth, easy theme changes |
+| Colour system | Per-interval unique colours | Learners visually identify any interval |
+| Layout | Top bar (no sidebar) | More vertical space for fretboard, DAW-like feel |
+| Routing | React Router v6 (not yet installed) | Deferred until quiz engine work begins |
+| Pitch detection | Pitchy browser | MPM algorithm, <50ms, no backend required |
+| Chord detection | FastAPI Python | librosa FFT more capable than JS alternatives |
+| Hosting | Vercel | Auto-deploy from GitHub, free tier |
+| Fonts | Playfair Display + DM Sans + DM Mono | Professional music software aesthetic |
 
 ---
 
-## 16. How to Resume in a New Chat
-
-Paste this document and say:
-
-> "I am building the Fretboard Theory app. This document has full context.
-> I am currently at [describe current step]. Help me continue."
-
----
-
-*Updated April 2026 — Phase 2 Complete, Phase 3 Next*
+*Fretboard Theory — Context Document v4.0 — April 2026*
+*Next session: Build Phase 3b Artist Feature — Solo Guide Artist tab with Claude API*
