@@ -1,61 +1,41 @@
 import { create } from 'zustand'
 
-// UI state is everything that affects appearance but not
-// music theory calculations. Keeping it separate from
-// useTheoryStore means:
-//   - Opening the solo guide panel doesn't re-render the fretboard
-//   - Changing the theme doesn't re-render the key grid
-//   - Each component subscribes only to what it needs
-//
-// This is the performance benefit of splitting stores.
-// Zustand only re-renders a component when the specific
-// slice of state that component subscribed to changes.
+// UI state = anything that affects appearance but not music theory.
 
 interface UIState {
-  // Panel visibility
   soloGuideOpen:   boolean
   uploadPanelOpen: boolean
 
-  // Theme
-  theme: 'dark' | 'light'
-
-  // Active lesson tab in the tab player
   lessonTab: 'overview' | 'techniques' | 'theory' | 'tips'
 
-  // Triad mode box visibility (shown only when category = triads)
   triadModeVisible: boolean
 
-  // Actions
-  toggleSoloGuide:   () => void
-  toggleUploadPanel: () => void
-  toggleTheme:       () => void
-  setLessonTab:      (tab: UIState['lessonTab']) => void
+  // Fretboard orientation preference.
+  // false (default) = standard: high E on top, low E on bottom.
+  //                   Matches tablature, Ultimate Guitar, most learning resources.
+  // true            = inverted / "playing position": low E on top.
+  //                   Mirrors what a guitarist sees looking down at their own neck.
+  fretboardFlipped: boolean
+
+  toggleSoloGuide:     () => void
+  toggleUploadPanel:   () => void
+  setLessonTab:        (tab: UIState['lessonTab']) => void
   setTriadModeVisible: (visible: boolean) => void
+  toggleFretboardFlip: () => void
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
   soloGuideOpen:    false,
   uploadPanelOpen:  false,
-  theme:            'dark',
   lessonTab:        'overview',
   triadModeVisible: false,
+  fretboardFlipped: false,
 
-  toggleSoloGuide: () =>
-    set({ soloGuideOpen: !get().soloGuideOpen }),
+  toggleSoloGuide:   () => set({ soloGuideOpen: !get().soloGuideOpen }),
+  toggleUploadPanel: () => set({ uploadPanelOpen: !get().uploadPanelOpen }),
 
-  toggleUploadPanel: () =>
-    set({ uploadPanelOpen: !get().uploadPanelOpen }),
-
-  // Toggle between dark and light.
-  // Also updates the html element's data-theme attribute so
-  // CSS variables switch globally. You'll wire this up in main.tsx later.
-  toggleTheme: () => {
-    const next = get().theme === 'dark' ? 'light' : 'dark'
-    set({ theme: next })
-    document.documentElement.setAttribute('data-theme', next)
-  },
-
-  setLessonTab: (lessonTab) => set({ lessonTab }),
-
+  setLessonTab:        (lessonTab)        => set({ lessonTab }),
   setTriadModeVisible: (triadModeVisible) => set({ triadModeVisible }),
+
+  toggleFretboardFlip: () => set({ fretboardFlipped: !get().fretboardFlipped }),
 }))

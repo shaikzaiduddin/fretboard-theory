@@ -16,10 +16,17 @@ function getStringGap(stringCount: number): number {
   return stringCount > 1 ? FB_HEIGHT / (stringCount - 1) : FB_HEIGHT
 }
 
-function getStringY(stringIdx: number, stringCount: number): number {
-  return stringCount === 1
-    ? FB_TOP + FB_HEIGHT / 2
-    : FB_TOP + stringIdx * getStringGap(stringCount)
+function getStringY(stringIdx: number, stringCount: number, flipped: boolean): number {
+  if (stringCount === 1) return FB_TOP + FB_HEIGHT / 2
+
+  const gap = getStringGap(stringCount)
+
+
+  const positionFromTop = flipped
+    ? stringIdx                      // flipped: low E (idx 0) at top
+    : (stringCount - 1 - stringIdx)  // standard: low E (idx 0) at bottom
+
+  return FB_TOP + positionFromTop * gap
 }
 
 export interface StringRenderData {
@@ -56,6 +63,7 @@ export function useFretboardDraw(
   renderData: FretboardRenderData,
   labelMode:  'note' | 'interval' | 'none',
   root:       number,
+  flipped:    boolean,
 ): FretboardDrawData {
   const { noteSet, intervalMap, dimmedStrings, stringCount, tuning, numFrets } = renderData
 
@@ -87,7 +95,7 @@ export function useFretboardDraw(
     const strings: StringRenderData[] = Array.from(
       { length: stringCount },
       (_, s) => {
-        const y            = getStringY(s, stringCount)
+        const y            = getStringY(s, stringCount, flipped)
         const dimmed       = dimmedStrings.has(s)
         const thickness    = 0.5 + (stringCount - 1 - s) * (1.4 / Math.max(stringCount - 1, 1))
         const openSemitone = ((tuning[s] % 12) + 12) % 12
@@ -126,7 +134,7 @@ export function useFretboardDraw(
       nutRect:   { x: FB_LEFT, y: FB_TOP - 3, width: 7, height: FB_HEIGHT + 6 },
       labelX,
     }
-  }, [noteSet, intervalMap, dimmedStrings, stringCount, tuning, labelMode, root, numFrets])
+  }, [noteSet, intervalMap, dimmedStrings, stringCount, tuning, labelMode, root, numFrets, flipped])
 }
 
 function buildDot(
